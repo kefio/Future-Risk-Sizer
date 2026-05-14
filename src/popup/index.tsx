@@ -23,16 +23,47 @@ function App() {
   const [status, setStatus] = useState('Loading TradingView state...');
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ type: 'GET_APP_STATE' }, (state: any) => {
-      if (!state) {
-        setStatus('No extension state available');
-        return;
-      }
-      setSettings(state.settings);
-      setBaseSymbol(state.latestInstrument?.normalizedSymbol ?? state.activeInstrument ?? null);
-      setStatus(state.latestInstrument?.normalizedSymbol ? 'Instrument detected' : 'Open TradingView to detect a symbol');
-      setCalculation(calculatePosition(state.latestInstrument?.normalizedSymbol ?? state.activeInstrument ?? null, 0, state.settings, state.latestInstrument?.rawSymbol ?? ''));
+    let cancelled = false;
+
+    const fallback = () => {
+      if (cancelled) return;
+      chrome.runtime.sendMessage({ type: 'GET_APP_STATE' }, (state: any) => {
+        if (cancelled || !state) {
+          if (!state) setStatus('No extension state available');
+          return;
+        }
+        setSettings(state.settings);
+        const symbol = state.latestInstrument?.normalizedSymbol ?? state.activeInstrument ?? null;
+        setBaseSymbol(symbol);
+        setStatus(symbol ? 'Instrument detected' : 'Open TradingView to detect a symbol');
+        setCalculation(calculatePosition(symbol, 0, state.settings, state.latestInstrument?.rawSymbol ?? ''));
+      });
+    };
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+      if (cancelled) return;
+      const tabId = tabs[0]?.id;
+      if (!tabId) { fallback(); return; }
+
+      chrome.tabs.sendMessage(tabId, { type: 'GET_DETECTION' }, (response: any) => {
+        if (cancelled) return;
+        if (chrome.runtime.lastError || !response?.detection?.normalizedSymbol) {
+          fallback();
+          return;
+        }
+
+        const det = response.detection;
+        chrome.runtime.sendMessage({ type: 'GET_APP_STATE' }, (state: any) => {
+          if (cancelled || !state?.settings) return;
+          setSettings(state.settings);
+          setBaseSymbol(det.normalizedSymbol);
+          setStatus('Instrument detected');
+          setCalculation(calculatePosition(det.normalizedSymbol, 0, state.settings, det.rawSymbol));
+        });
+      });
     });
+
+    return () => { cancelled = true; };
   }, []);
 
   const instrument = baseSymbol ? INSTRUMENTS[baseSymbol] : null;

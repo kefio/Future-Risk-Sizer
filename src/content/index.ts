@@ -90,3 +90,10 @@ if (head) {
     childList: true,
   });
 }
+
+chrome.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any) => {
+  if (message?.type === 'GET_DETECTION') {
+    sendResponse({ detection: detectInstrument() });
+    return true;
+  }
+});
