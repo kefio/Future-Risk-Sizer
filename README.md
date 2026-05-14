@@ -34,14 +34,25 @@ All contract-date variants are supported (e.g. `ESM2026`, `NQU2025`, `MESM2026`)
 
 *(coming soon)*
 
-### Manual (load unpacked)
+### Quick install (ZIP)
 
-1. Run `npm install && npm run build`
-2. Open `chrome://extensions`
-3. Enable **Developer mode**
-4. Click **Load unpacked** and select the `dist/` folder
+1. Download the [latest release ZIP](https://github.com/kefio/Future-Risk-Sizer/releases/latest)
+2. Unzip to a folder
+3. Open `chrome://extensions`
+4. Enable **Developer mode**
+5. Click **Load unpacked**
+6. Select the unzipped folder
 
-*(Pre-built ZIP releases will be available once the first release is published)*
+### Manual (build from source)
+
+```bash
+git clone https://github.com/kefio/Future-Risk-Sizer.git
+cd Future-Risk-Sizer
+npm install
+npm run build
+```
+
+Then `Load unpacked` on the `dist/` folder from `chrome://extensions`.
 
 ## Usage
 
