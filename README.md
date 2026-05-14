@@ -36,7 +36,7 @@ All contract-date variants are supported (e.g. `ESM2026`, `NQU2025`, `MESM2026`)
 
 ### Manual (load unpacked)
 
-1. Download the [latest release ZIP](https://github.com/yourusername/futures-risk-sizer/releases)
+1. Download the [latest release ZIP](https://github.com/kefio/futures-risk-sizer/releases)
 2. Unzip to a folder
 3. Open `chrome://extensions`
 4. Enable **Developer mode**
